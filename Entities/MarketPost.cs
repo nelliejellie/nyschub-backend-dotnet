@@ -19,6 +19,7 @@ namespace nyschub.Entities
         [Required]
         public decimal Price { get; set; }
         public Corper Corper { get; set; }
+        public string CorperName { get; set; }
         public List<MarketComment> Comments { get; set; }
         public DateTime CreatedAt { get; set; }
     }

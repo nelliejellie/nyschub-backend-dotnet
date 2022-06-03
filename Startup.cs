@@ -15,6 +15,7 @@ using nyschub.Entities;
 using nyschub.Repositories;
 using nyschub.Services;
 using nyschub.Services.Entities;
+using nyschub.Services.Image;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,8 +38,22 @@ namespace nyschub
             
             services.AddControllers();
             services.AddScoped<ICorperRepository, CorperRepository>();
+            services.AddScoped<IPostRepository, ForumPostRepository>();
+
+            // for database linking
             services.AddDbContext<AppDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("default")));
+
+            // for emails service
             services.AddScoped<EmailService>();
+
+            // for image service
+            services.AddScoped<IImageService>(x => new ImageService(
+                Configuration.GetSection("Cloudinary")["Name"],
+                Configuration.GetSection("Cloudinary")["Key"],
+                Configuration.GetSection("Cloudinary")["Secret"]
+            ));
+
+            // for identity user
             services.AddIdentity<Corper, IdentityRole>(options =>
             {
                 options.Password.RequiredLength = 10;
@@ -48,6 +63,7 @@ namespace nyschub
             }
                 ).AddEntityFrameworkStores<AppDbContext>().AddDefaultTokenProviders();
 
+            // for email service
             services.Configure<MailjetOptions>(Configuration.GetSection("mailjetOptions"));
 
             services.AddSwaggerGen(c =>

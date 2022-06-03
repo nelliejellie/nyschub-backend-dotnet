@@ -26,15 +26,29 @@ namespace nyschub.Controllers
             _database = database;
         }
 
-        [Authorize]
+        // get all corpers
         [HttpGet]
-        [Route("AllCorpers", Name = "Corpers")]
-        public async Task<IActionResult> GetCorpers()
+        [Route("AllCorpers/{page}", Name = "Corpers")]
+        public async Task<IActionResult> GetCorpers(int page)
         {
-            var corpers = await _corperRepository.All();
+            var corpers = await _corperRepository.GetPaginated(page, 10);
+
+            var showUsers = new List<CorperDto>();
+            foreach(var corper in corpers)
+            {
+                var User = new CorperDto()
+                {
+                    FirstName = corper.FirstName,
+                    LastName = corper.LastName,
+                    NyscRegNumber = corper.NyscRegNumber,
+                    UserName = corper.UserName
+                };
+                showUsers.Add(User);
+            }
             return Ok(corpers);
         }
 
+        // get particular post
         [HttpGet]
         [Route("GetCorper/{id}", Name = "Corper")]
         public async Task<IActionResult> GetCorper(string id)
@@ -44,33 +58,7 @@ namespace nyschub.Controllers
             return Ok(corper);
         }
 
-        [HttpPost]
-        [Route("AddCorper/{id}", Name = "AddCorper")]
-        public async Task<IActionResult> AddCorper(CorperDto corperDto)
-        {
-            var _corper = new Corper();
-            _corper.FirstName = corperDto.FirstName;
-            _corper.LastName = corperDto.LastName;
-            _corper.NyscRegNumber = corperDto.NyscRegNumber;
-            _corper.UserName = corperDto.UserName;
-            _corper.Status = 1;
-
-            await _corperRepository.Add(_corper);
-
-            return CreatedAtRoute("Corper", corperDto);
-        }
-
-        [HttpDelete]
-        [Route("DeleteCorper/{id}", Name = "DeleteCorper")]
-        public async Task<IActionResult> DeleteCorper(string id)
-        {
-            var corper = await _database.Corpers.FindAsync(id);
-
-            var isDeleted = await _corperRepository.Delete(id);
-
-            return isDeleted ? Ok($"{corper.UserName} has been deleted") : Ok($"{corper.UserName} has not been deleted");
-        }
-
+        // update corper details
         [HttpPut]
         [Route("UpdateCorper/{id}", Name = "UpdateCorper")]
         public async Task<IActionResult> UpdateCorper(string id, UpdateCorperDto corperDto)

@@ -16,12 +16,11 @@ namespace nyschub.Entities
         public override string Id { get; set; }
         [Required]
         public string FirstName { get; set; }
-
         [Required]
         public string LastName { get; set; }
-
         [Required]
         public string NyscRegNumber { get; set; }
+        public string CorperPhoto { get; set; }
         public int Status { get; set; }
         public List<ForumPost> Post { get; set; }
         public List<ForumComment> Comment { get; set; }

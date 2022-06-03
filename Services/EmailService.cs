@@ -38,13 +38,13 @@ namespace nyschub.Services
                         new JObject
                         {
                             {"Email", model.Receipient },
-                            {"Name", "User" }
+                            {"Name", "Friend" }
                         }
 
                     } },
                     {"Subject", model.Title},
                     {"TextPart", model.Body},
-                    {"HTMLPart", $"<h3>Dear user, welcome to nyschub. your account has been created"}
+                    {"HTMLPart", model.Body}
                 }
             });
             MailjetResponse response = await client.PostAsync(request);

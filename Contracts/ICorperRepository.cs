@@ -8,10 +8,8 @@ namespace nyschub.Contracts
 {
     public interface ICorperRepository
     {
-        Task<List<Corper>> All();
+        Task<List<Corper>> GetPaginated(int page = 1, int pageSize = 10);
         Task<bool> GetById(string id);
-        Task<bool> Add(Corper corper);
-        Task<bool> Delete(string id);
         Task<bool> Update(Corper corper);
     }
 }
