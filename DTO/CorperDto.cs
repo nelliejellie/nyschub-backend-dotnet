@@ -13,5 +13,6 @@ namespace nyschub.DTO
         public string NyscRegNumber { get; set; }
         public string UserName { get; set; }
         
+
     }
 }

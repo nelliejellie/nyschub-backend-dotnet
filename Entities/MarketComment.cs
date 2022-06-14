@@ -8,13 +8,16 @@ namespace nyschub.Entities
 {
     public class MarketComment
     {
+        public MarketComment()
+        {
+            CreatedAt = DateTime.UtcNow;
+        }
         public int Id { get; set; }
         [Required]
         public string Comment { get; set; }
-        public MarketPost MarketPost { get; set; }
+        public string UserName { get; set; }
+
+        public int MarketPostId { get; set; }
         public DateTime CreatedAt { get; set; }
-        public Corper Corper { get; set; }
-        public List<UpVote> UpVotes { get; set; }
-        public List<DownVote> DownVotes { get; set; }
     }
 }

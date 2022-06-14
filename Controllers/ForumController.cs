@@ -17,14 +17,12 @@ namespace nyschub.Controllers
     public class ForumController : ControllerBase
     {
         public readonly IPostRepository _postRepository;
-        private readonly AppDbContext _database;
         private readonly ICorperRepository _corperRepository;
         private readonly IImageService _imageService;
 
-        public ForumController(IPostRepository postRepository, AppDbContext database, ICorperRepository corperRepository, IImageService imageService)
+        public ForumController(IPostRepository postRepository, ICorperRepository corperRepository, IImageService imageService)
         {
             _postRepository = postRepository;
-            _database = database;
             _corperRepository = corperRepository;
             _imageService = imageService;
         }
@@ -48,7 +46,7 @@ namespace nyschub.Controllers
                 var post = await _postRepository.GetById(id);
                 if (post == null)
                 {
-                    return BadRequest("this user does not exist");
+                    return BadRequest("this post has been deleted or doesnt exist");
                 }
                 return Ok(post);
             }
@@ -87,7 +85,7 @@ namespace nyschub.Controllers
         [Route("AddPost", Name = "AddPost")]
         public async Task<IActionResult> AddPost([FromForm] ForumRequestPostDto forumPostDto, string id)
         {
-            var corper = await _database.Corpers.FirstOrDefaultAsync(corper => corper.Id == id);
+            var corper = await _postRepository.GetCorperById(id);
             var userName = corper.UserName;
 
             string imgUrl = "";
@@ -114,7 +112,7 @@ namespace nyschub.Controllers
             {
                 return Ok(newPost);
             }
-            return BadRequest("something went wrong with the server");
+            return BadRequest("something went wrong while trying to create this post");
         }
 
         // corper wants to delete post
@@ -124,19 +122,23 @@ namespace nyschub.Controllers
         {
             try
             {
-                var corper = await _database.Corpers.FirstOrDefaultAsync(corper => corper.Id == userId);
-                var post = await _database.ForumPosts.FirstOrDefaultAsync(post => post.Id == id);
+                var corper = await _postRepository.GetCorperById(userId);
+                var post = await _postRepository.GetById(id);
 
                 if (post.UserName == corper.UserName)
                 {
                     await _postRepository.Delete(post.Id);
+                    return Ok("your post has been deleted");
                 }
-                return Ok($"{post.Post.Substring(0, 5)} has been deleted");
+                else
+                {
+                    return BadRequest("this comment cannot be deleted by you");
+                };
             }
             catch (Exception)
             {
 
-                return BadRequest("you cant delete this post");
+                throw;
             }
         }
     }

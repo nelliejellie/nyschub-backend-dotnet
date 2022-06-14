@@ -8,8 +8,7 @@ namespace nyschub.DTO
 {
     public class DownVoteDto
     {
-        public ForumPost ForumPost { get; set; }
-        public ForumComment ForumComment { get; set; }
-        public Corper CorperAgainst { get; set; }
+        public int ForumPostId { get; set; }
+        public string UserName { get; set; }
     }
 }

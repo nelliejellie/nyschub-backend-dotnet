@@ -14,5 +14,6 @@ namespace nyschub.Contracts
         Task<bool> Delete(int id);
         Task<bool> Update(ForumPost entity);
         Task<List<ForumPost>> AllCorpersPost(string username);
+        Task<Corper> GetCorperById(string id);
     }
 }

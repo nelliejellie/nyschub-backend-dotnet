@@ -21,13 +21,8 @@ namespace nyschub.Entities
         [Required]
         public string NyscRegNumber { get; set; }
         public string CorperPhoto { get; set; }
+        public string StateOfDeployment { get; set; }
         public int Status { get; set; }
-        public List<ForumPost> Post { get; set; }
-        public List<ForumComment> Comment { get; set; }
-        public List<MarketPost> MarketPost { get; set; }
-        public List<MarketComment> MartetComment { get; set; }
-        public List<UpVote> UpVotes { get; set; }
-        public List<DownVote> DownVotes { get; set; }
         public DateTime CreatedAt { get; set; }
         
     }

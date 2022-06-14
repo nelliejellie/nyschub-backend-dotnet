@@ -9,57 +9,57 @@ using System.Threading.Tasks;
 
 namespace nyschub.Repositories
 {
-    public class ForumPostRepository : IPostRepository
+    public class MarketPostRepository : IMarketPostRepository
     {
         private readonly AppDbContext _database;
 
-        public ForumPostRepository(AppDbContext database)
+        public MarketPostRepository(AppDbContext database)
         {
             _database = database;
         }
-        public async Task<bool> Add(ForumPost post)
+        public async Task<bool> Add(MarketPost post)
         {
-            await _database.ForumPosts.AddAsync(post);
+            await _database.MarketPosts.AddAsync(post);
             var changes = await _database.SaveChangesAsync();
             return changes > 0;
         }
 
-        public async Task<List<ForumPost>> GetPaginated(int page = 1, int pageSize = 10)
+        public async Task<List<MarketPost>> GetPaginated(string state, int page = 1, int pageSize = 10)
         {
-            return await _database.ForumPosts.Skip((page - 1) * pageSize).Take(pageSize).OrderByDescending(post => post.CreatedAt).ToListAsync();
+            return await _database.MarketPosts.Skip((page - 1) * pageSize).Take(pageSize).OrderByDescending(post => post.CreatedAt).Where(post => post.StatePost == state).ToListAsync();
         }
         // repository to get a particulars users post
-        public async Task<List<ForumPost>> AllCorpersPost(string username)
+        public async Task<List<MarketPost>> AllCorpersPost(string username)
         {
-            return await _database.ForumPosts.Where(post => post.UserName == username).ToListAsync();
+            return await _database.MarketPosts.Where(post => post.UserName == username).ToListAsync();
         }
 
         public async Task<bool> Delete(int id)
         {
-            var post = await _database.ForumPosts.FirstOrDefaultAsync(post => post.Id == id);
+            var post = await _database.MarketPosts.FirstOrDefaultAsync(post => post.Id == id);
 
             if (post == null)
             {
                 return false;
             }
-            _database.ForumPosts.Remove(post);
+            _database.MarketPosts.Remove(post);
             var changes = await _database.SaveChangesAsync();
             return changes > 0;
         }
 
-        public async Task<ForumPost> GetById(int id)
+        public async Task<MarketPost> GetById(int id)
         {
-            var post = await _database.ForumPosts.FirstOrDefaultAsync(post => post.Id == id);
-            if(post == null)
+            var post = await _database.MarketPosts.FirstOrDefaultAsync(post => post.Id == id);
+            if (post == null)
             {
                 return null;
             }
             return post;
         }
 
-        public async Task<bool> Update(ForumPost post)
+        public async Task<bool> Update(MarketPost post)
         {
-            _database.ForumPosts.Update(post);
+            _database.MarketPosts.Update(post);
             var changes = await _database.SaveChangesAsync();
             return changes > 0;
         }
@@ -71,3 +71,4 @@ namespace nyschub.Repositories
         }
     }
 }
+

@@ -39,6 +39,12 @@ namespace nyschub
             services.AddControllers();
             services.AddScoped<ICorperRepository, CorperRepository>();
             services.AddScoped<IPostRepository, ForumPostRepository>();
+            services.AddScoped<ICorperRepository, CorperRepository>();
+            services.AddScoped<IMarketPostRepository, MarketPostRepository>();
+            services.AddScoped<ICommentRepository<ForumComment>, ForumCommentRepository>();
+            services.AddScoped<ICommentRepository<MarketComment>, MarketCommentRepository>();
+            services.AddScoped<IVoteRepository<UpVote>, VoteRepository>();
+            services.AddScoped<IVoteRepository<DownVote>, DownVoteRepository>();
 
             // for database linking
             services.AddDbContext<AppDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("default")));
@@ -78,12 +84,11 @@ namespace nyschub
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "nyschub v1"));
-            }
+           
+            app.UseDeveloperExceptionPage();
+            app.UseSwagger();
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "nyschub v1"));
+            
 
             app.UseHttpsRedirection();
 

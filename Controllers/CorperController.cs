@@ -67,6 +67,7 @@ namespace nyschub.Controllers
             _corper.FirstName = corperDto.FirstName;
             _corper.LastName = corperDto.LastName;
             _corper.UserName = corperDto.UserName;
+            _corper.StateOfDeployment = corperDto.state;
             _corper.Status = 1;
 
             await _corperRepository.Update(_corper);
