@@ -17,6 +17,8 @@ namespace nyschub.Repositories
         {
             _database = database;
         }
+
+        // post to the database
         public async Task<bool> Add(ForumPost post)
         {
             await _database.ForumPosts.AddAsync(post);

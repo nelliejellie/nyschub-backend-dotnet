@@ -24,7 +24,7 @@ namespace nyschub.Repositories
             return await _database.Corpers.Skip((page - 1) * pageSize).Take(pageSize).Where(corper => corper.Status == 1).ToListAsync();
         }
 
-
+        // get user by id
         public async Task<bool> GetById(string id)
         {
             var corper = await _database.Corpers.FindAsync(id);

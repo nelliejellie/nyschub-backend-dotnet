@@ -22,5 +22,6 @@ namespace nyschub.DataAccess
         public DbSet<ForumPost> ForumPosts { get; set; }
         public DbSet<MarketPost> MarketPosts { get; set; }
         public DbSet<MarketComment> MarketComments { get; set; }
+        public DbSet<PasswordResetModel> TokenTable { get; set; }
     }
 }

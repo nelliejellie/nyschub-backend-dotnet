@@ -45,6 +45,7 @@ namespace nyschub
             services.AddScoped<ICommentRepository<MarketComment>, MarketCommentRepository>();
             services.AddScoped<IVoteRepository<UpVote>, VoteRepository>();
             services.AddScoped<IVoteRepository<DownVote>, DownVoteRepository>();
+            services.AddScoped<TokenRepository>();
 
             // for database linking
             services.AddDbContext<AppDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("default")));
