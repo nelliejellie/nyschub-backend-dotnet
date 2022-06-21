@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -8,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using nyschub.Contracts;
 using nyschub.DataAccess;
@@ -19,6 +21,7 @@ using nyschub.Services.Image;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace nyschub
@@ -35,8 +38,23 @@ namespace nyschub
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            //for jwt
             
-            services.AddControllers();
+            //jwt ends
+
+            // for identity user
+
+            services.AddIdentity<Corper, IdentityRole>(options =>
+            {
+                options.Password.RequiredLength = 10;
+                options.Password.RequireNonAlphanumeric = true;
+                options.Password.RequireUppercase = true;
+                options.Password.RequireDigit = true;
+                options.SignIn.RequireConfirmedAccount = true;
+            }
+                ).AddEntityFrameworkStores<AppDbContext>();
+
+            
             services.AddScoped<ICorperRepository, CorperRepository>();
             services.AddScoped<IPostRepository, ForumPostRepository>();
             services.AddScoped<ICorperRepository, CorperRepository>();
@@ -46,6 +64,15 @@ namespace nyschub
             services.AddScoped<IVoteRepository<UpVote>, VoteRepository>();
             services.AddScoped<IVoteRepository<DownVote>, DownVoteRepository>();
             services.AddScoped<TokenRepository>();
+            services.AddScoped<IAuthManager, AuthManager>();
+            // add cors policy
+            services.AddCors(o => {
+                o.AddPolicy("CorsPolicy", builder =>
+                    builder.AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                );
+            });
 
             // for database linking
             services.AddDbContext<AppDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("default")));
@@ -59,16 +86,30 @@ namespace nyschub
                 Configuration.GetSection("Cloudinary")["Key"],
                 Configuration.GetSection("Cloudinary")["Secret"]
             ));
+            services.AddControllers();
+            var jwtSettings = Configuration.GetSection("Jwt");
+            var key = Encoding.ASCII.GetBytes(Configuration["Jwt:Key"]);
 
-            // for identity user
-            services.AddIdentity<Corper, IdentityRole>(options =>
+            services.AddAuthentication(o =>
             {
-                options.Password.RequiredLength = 10;
-                options.Password.RequireNonAlphanumeric = true;
-                options.Password.RequireUppercase = true;
-                options.Password.RequireDigit = true;
-            }
-                ).AddEntityFrameworkStores<AppDbContext>().AddDefaultTokenProviders();
+                o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(o =>
+            {
+                o.SaveToken = true;
+                o.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    RequireExpirationTime = false
+                };
+            });
+
 
             // for email service
             services.Configure<MailjetOptions>(Configuration.GetSection("mailjetOptions"));
@@ -76,10 +117,50 @@ namespace nyschub
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "nyschub", Version = "v1" });
+
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Description = @"JWT authorization header using the bearer scheme.
+                        Enter 'Bearer' [Space] and then your token in the text input below
+                        Example: 'Bearer 12343abcdef'",
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer"
+                });
+
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement() {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        },
+                        Scheme = "0auth2",
+                        Name = "Bearer",
+                        In = ParameterLocation.Header
+                    },
+
+                    new List<string>()
+                }});
             });
 
-            services.AddDefaultIdentity<Corper>(options => options.SignIn.RequireConfirmedAccount = true)
-                .AddEntityFrameworkStores<AppDbContext>();
+            // AddSwaggerDoc(services);
+
+            //services.AddDefaultIdentity<Corper>(options => 
+            //options.SignIn.RequireConfirmedAccount = true)
+            //    .AddEntityFrameworkStores<AppDbContext>();
+        }
+
+        private void AddSwaggerDoc(IServiceCollection services)
+        {
+            services.AddSwaggerGen(c =>
+            {
+                
+                
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -92,7 +173,7 @@ namespace nyschub
             
 
             app.UseHttpsRedirection();
-
+            app.UseCors("AllowAll");
             app.UseRouting();
 
             app.UseAuthorization();
@@ -101,6 +182,6 @@ namespace nyschub
             {
                 endpoints.MapControllers();
             });
-        }
+        } 
     }
 }

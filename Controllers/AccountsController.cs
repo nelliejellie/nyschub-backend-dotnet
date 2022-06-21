@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 
 namespace nyschub.Controllers
 {
+
     [Route("api/[controller]")]
     [ApiController]
     public class AccountsController : ControllerBase
@@ -22,13 +23,15 @@ namespace nyschub.Controllers
         private readonly AppDbContext _database;
         private readonly EmailService _email;
         private readonly TokenRepository _tokenRepository;
+        private readonly IAuthManager _authManager;
 
-        public AccountsController(UserManager<Corper> userManager, AppDbContext database, EmailService email, TokenRepository tokenRepository)
+        public AccountsController(UserManager<Corper> userManager, AppDbContext database, EmailService email, TokenRepository tokenRepository, IAuthManager authManager)
         {
             _userManager = userManager;
             _database = database;
             _email = email;
             _tokenRepository = tokenRepository;
+            _authManager = authManager;
         }
 
         [HttpPost]
@@ -61,7 +64,7 @@ namespace nyschub.Controllers
                 Status = 1,
                 Email = registerDto.Email,
                 UserName = registerDto.UserName,
-                EmailConfirmed = true
+                EmailConfirmed = true,
             };
 
             var isCreated = await _userManager.CreateAsync(newUser, registerDto.Password);
@@ -72,7 +75,8 @@ namespace nyschub.Controllers
                     isCreated.Errors.Select(error => error.Description).ToList()
                     ); ;
             }
-
+            var token = await _authManager.CreateToken(newUser);
+            
             var emailModel = new EmailModel()
             {
                 Receipient = registerDto.Email,
@@ -86,7 +90,8 @@ namespace nyschub.Controllers
                 FirstName = registerDto.FirstName,
                 LastName = registerDto.LastName,
                 UserName = registerDto.UserName,
-                NyscRegNumber = registerDto.NyscRegNumber
+                NyscRegNumber = registerDto.NyscRegNumber,
+                JwtToken = token
             });
         }
 
@@ -106,12 +111,14 @@ namespace nyschub.Controllers
                     }
 
                     var isCorrect = await _userManager.CheckPasswordAsync(userExist, loginDto.Password);
+                    var token = await _authManager.CreateToken(userExist);
 
                     if (isCorrect)
                     {
                         return Ok(new LoginResponseDto
                         {
-                            Success = true
+                            Success = true,
+                            Token = token
                         });
                     }
                 }

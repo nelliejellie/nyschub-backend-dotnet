@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using nyschub.Contracts;
 using nyschub.DataAccess;
@@ -12,8 +13,10 @@ using System.Threading.Tasks;
 
 namespace nyschub.Controllers
 {
+    
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class CorperController : ControllerBase
     {
         private readonly ICorperRepository _corperRepository;
@@ -27,6 +30,8 @@ namespace nyschub.Controllers
         }
 
         // get all corpers
+       // cd nyschub
+
         [HttpGet]
         [Route("AllCorpers/{page}", Name = "Corpers")]
         public async Task<IActionResult> GetCorpers(int page)
