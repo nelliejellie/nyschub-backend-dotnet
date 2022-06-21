@@ -159,20 +159,21 @@ namespace nyschub
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, AppDbContext database)
         {
            
             app.UseDeveloperExceptionPage();
             app.UseSwagger();
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "nyschub v1"));
-            
 
+           
             app.UseHttpsRedirection();
             app.UseCors("AllowAll");
             app.UseRouting();
 
             app.UseAuthorization();
 
+            database.Database.EnsureCreated();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
