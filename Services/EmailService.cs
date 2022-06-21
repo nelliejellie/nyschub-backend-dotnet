@@ -21,7 +21,7 @@ namespace nyschub.Services
         
         public async Task SendMail(EmailModel model)
         {
-            MailjetClient client = new MailjetClient(_options.Key, _options.Secret);
+            MailjetClient client = new MailjetClient(Environment.GetEnvironmentVariable("MailjetKey"), Environment.GetEnvironmentVariable("MailjetSecret"));
             MailjetRequest request = new MailjetRequest
             {
                 Resource = SendV31.Resource,

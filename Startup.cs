@@ -28,12 +28,16 @@ namespace nyschub
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        private readonly IWebHostEnvironment _env;
+
+        public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             Configuration = configuration;
+            _env = env;
         }
 
         public IConfiguration Configuration { get; }
+        
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -52,7 +56,7 @@ namespace nyschub
                 options.Password.RequireDigit = true;
                 options.SignIn.RequireConfirmedAccount = true;
             }
-                ).AddEntityFrameworkStores<AppDbContext>();
+                ).AddEntityFrameworkStores<AppDbContext>().AddDefaultTokenProviders();
 
             
             services.AddScoped<ICorperRepository, CorperRepository>();
@@ -75,20 +79,24 @@ namespace nyschub
             });
 
             // for database linking
-            services.AddDbContext<AppDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("default")));
+            if (_env.IsDevelopment())
+            {
+                services.AddDbContext<AppDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("default")));
+            }
+            services.AddDbContext<AppDbContext>(options => options.UseNpgsql(Configuration.GetConnectionString("PostGreSql")));
 
             // for emails service
             services.AddScoped<EmailService>();
 
             // for image service
             services.AddScoped<IImageService>(x => new ImageService(
-                Configuration.GetSection("Cloudinary")["Name"],
-                Configuration.GetSection("Cloudinary")["Key"],
-                Configuration.GetSection("Cloudinary")["Secret"]
+                Environment.GetEnvironmentVariable("CloudinaryName"),
+                Environment.GetEnvironmentVariable("CloudinaryKey"),
+                Environment.GetEnvironmentVariable("CloudinarySecret")
             ));
             services.AddControllers();
             var jwtSettings = Configuration.GetSection("Jwt");
-            var key = Encoding.ASCII.GetBytes(Configuration["Jwt:Key"]);
+            var key = Encoding.ASCII.GetBytes(Environment.GetEnvironmentVariable("JwtKey"));
 
             services.AddAuthentication(o =>
             {
@@ -110,7 +118,7 @@ namespace nyschub
                 };
             });
 
-
+            
             // for email service
             services.Configure<MailjetOptions>(Configuration.GetSection("mailjetOptions"));
 
@@ -147,20 +155,7 @@ namespace nyschub
                 }});
             });
 
-            // AddSwaggerDoc(services);
-
-            //services.AddDefaultIdentity<Corper>(options => 
-            //options.SignIn.RequireConfirmedAccount = true)
-            //    .AddEntityFrameworkStores<AppDbContext>();
-        }
-
-        private void AddSwaggerDoc(IServiceCollection services)
-        {
-            services.AddSwaggerGen(c =>
-            {
-                
-                
-            });
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

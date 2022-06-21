@@ -55,11 +55,12 @@ namespace nyschub.Services
 
         private JwtSecurityToken GenerateTokenOptions(SigningCredentials signingCredential, List<Claim> claims)
         {
-            var jwtSettings = _configuration.GetSection("Jwt");
-            var expiration = DateTime.Now.AddHours(Convert.ToDouble(jwtSettings.GetSection("lifetime").Value));
+            
+            var expiration = DateTime.Now.AddHours(Convert.ToDouble(Environment.GetEnvironmentVariable("JwtLifetime")));
+            
              
             var token = new JwtSecurityToken(
-                issuer: jwtSettings.GetSection("validIssuer").Value,
+                issuer: Environment.GetEnvironmentVariable("JwtIssuer"),
                 claims: claims,
                 expires: expiration,
                 signingCredentials: signingCredential
@@ -70,7 +71,7 @@ namespace nyschub.Services
 
         private SigningCredentials GetSigningCredential()
         {
-            var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
+            var key = Encoding.ASCII.GetBytes(Environment.GetEnvironmentVariable("JwtKey"));
             Console.WriteLine(key);
             var secret = new SymmetricSecurityKey(key);
 
