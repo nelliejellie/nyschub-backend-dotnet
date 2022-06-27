@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using nyschub.Contracts;
 using nyschub.DTO;
 using nyschub.Entities;
@@ -8,11 +10,12 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace nyschub.Controllers
-{
+    namespace nyschub.Controllers
+    {
     
         [Route("api/[controller]")]
         [ApiController]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public class MarketController : ControllerBase
         {
             public readonly IMarketPostRepository _marketpostRepository;
@@ -86,31 +89,40 @@ namespace nyschub.Controllers
             {
                 var corper = await _marketpostRepository.GetCorperById(userId);
        
-                var urlStrings = new List<string>() { "", "", "" };
+                var urlStrings = new List<string>();
                 
-                for(var i=0; i < urlStrings.Count; i++)
+            
+
+                foreach (var files in marketPostDto.PhotoPaths)
                 {
-                    var filePath = Path.GetTempFileName();
-                    using (var stream = System.IO.File.Create(filePath))
+                    if(files.Length > 0)
                     {
-                       marketPostDto.PhotoPaths[i].CopyTo(stream);
+                        var filePath = Path.GetTempFileName();
+                        using(var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            files.CopyTo(stream);
+                        }
+                        var uploadResult = await _imageService.AddImage(filePath);
+                        urlStrings.Add(uploadResult);
                     }
-                    var uploadResult = await _imageService.AddImage(filePath);
-                    urlStrings[i] = uploadResult;
+                    
                 }
+
+                
 
                
                 var newPost = new MarketPost()
                 {
                     IsSold = false,
                     PhotoPath = urlStrings[0],
-                    PhotoPathTwo = urlStrings[1],
-                    PhotoPathThree = urlStrings[2],
+                    PhotoPathTwo = urlStrings.Count > 1 ? urlStrings[1] : "empty",
+                    PhotoPathThree = urlStrings.Count > 2 ? urlStrings[2] : "empty",
                     Description = marketPostDto.Description,
                     Title = marketPostDto.Title,
                     Price = marketPostDto.Price,
                     UserName = corper.UserName,
-                    StatePost = corper.StateOfDeployment
+                    StatePost = corper.StateOfDeployment,
+                    CorperName = $"{corper.FirstName} {corper.LastName}"
                 };
 
                 
@@ -178,6 +190,7 @@ namespace nyschub.Controllers
                     throw;
                 }
             }
+
         }
     
-}
+    }

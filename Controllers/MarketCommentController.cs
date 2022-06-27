@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using nyschub.Contracts;
 using nyschub.DTO;
 using nyschub.Entities;
@@ -12,6 +14,7 @@ namespace nyschub.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class MarketCommentController : ControllerBase
     {
         private readonly ICommentRepository<MarketComment> _commentRepository;
