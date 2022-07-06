@@ -7,6 +7,7 @@ using nyschub.DTO;
 using nyschub.Entities;
 using nyschub.Repositories;
 using nyschub.Services;
+using Swashbuckle.AspNetCore.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,6 +35,7 @@ namespace nyschub.Controllers
             _authManager = authManager;
         }
 
+        [SwaggerOperation(Summary = "Register a new corper to the system")]
         [HttpPost]
         [Route("Register")]
         public async Task<IActionResult> Register(RegisterDto registerDto)
@@ -95,6 +97,7 @@ namespace nyschub.Controllers
             });
         }
 
+        [SwaggerOperation(Summary = "Login a registered corper to the system")]
         [HttpPost]
         [Route("Login")]
         public async Task<IActionResult> Login(LoginDto loginDto)
@@ -134,6 +137,7 @@ namespace nyschub.Controllers
             return BadRequest();
         }
 
+        [SwaggerOperation(Summary = "Reset an already registered user's password to the system")]
         [HttpPost]
         [Route("PasswordReset")]
         public async Task<IActionResult> SendPasswordResetLink(PasswordResetTokenDto passwordResetTokenDto)
@@ -174,6 +178,8 @@ namespace nyschub.Controllers
             return Ok(new { Success = true, Message = "an email has been sent successfully" });
         }
 
+
+        [SwaggerOperation(Summary = "endpoint to confirm password reset")]
         [HttpPost]
         [Route("PasswordReset/Confirm")]
         public async Task<IActionResult> PasswordResetConfirm(ResetConfirmDto resetConfirmDto)

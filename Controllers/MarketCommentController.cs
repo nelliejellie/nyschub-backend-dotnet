@@ -5,6 +5,7 @@ using nyschub.Contracts;
 using nyschub.DTO;
 using nyschub.Entities;
 using nyschub.Services;
+using Swashbuckle.AspNetCore.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,6 +27,7 @@ namespace nyschub.Controllers
             _email = email;
         }
 
+        [SwaggerOperation(Summary = "get all comments under a particular post")]
         // route to get all comments under post
         [HttpGet]
         [Route("getallcomments/{postid}")]
@@ -36,7 +38,7 @@ namespace nyschub.Controllers
             return Ok(comments);
         }
 
-
+        [SwaggerOperation(Summary = "add a comment under a post")]
         // route to post a comment
         [HttpPost]
         [Route("{username}/{postid}/addcomment")]
@@ -79,6 +81,7 @@ namespace nyschub.Controllers
             
         }
 
+        [SwaggerOperation(Summary = "get a particular comment by its id")]
         // route to get comment by id
         [HttpGet]
         [Route("{commentId}")]
@@ -98,7 +101,7 @@ namespace nyschub.Controllers
             }
         }
 
-
+        [SwaggerOperation(Summary = "corper wants to delete his post")]
         // route to delete comment
         [HttpDelete]
         [Route("deletecomment/{commentId}")]

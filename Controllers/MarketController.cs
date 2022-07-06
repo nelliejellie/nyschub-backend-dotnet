@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using nyschub.Contracts;
 using nyschub.DTO;
 using nyschub.Entities;
+using Swashbuckle.AspNetCore.Annotations;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -29,16 +30,17 @@ using System.Threading.Tasks;
                 _imageService = imageService;
             }
 
-        // get all posts
-        [HttpGet]
-        [Route("{state}/marketplace/{page}")]
-        public async Task<IActionResult> GetPosts([FromRoute]string state, int page)
-            {
-                var posts = await _marketpostRepository.GetPaginated(state,page, 10);
-                return Ok(posts);
-            }
+            // get all posts
+            [HttpGet]
+            [Route("{state}/marketplace/{page}")]
+            public async Task<IActionResult> GetPosts([FromRoute]string state, int page)
+                {
+                    var posts = await _marketpostRepository.GetPaginated(state,page, 10);
+                    return Ok(posts);
+                }
 
             // gets a particular post 
+            [SwaggerOperation(Summary = "a corper wants to view a product in the marketplace")]
             [HttpGet]
             [Route("Post/{id}")]
             public async Task<IActionResult> GetPost(int id)
@@ -60,6 +62,7 @@ using System.Threading.Tasks;
             }
 
             // gets all the post made by a corper
+            [SwaggerOperation(Summary = "corper wants to see all the posts he/she has made")]
             [HttpGet]
             [Route("MyPosts/{username}")]
             public async Task<IActionResult> MyPosts(string username)
@@ -83,6 +86,7 @@ using System.Threading.Tasks;
 
 
             // corper creates a post
+            [SwaggerOperation(Summary = "a corper wants to create a post in the marketplace")]
             [HttpPost]
             [Route("AddPost")]
             public async Task<IActionResult> AddPost([FromForm] MarketPostDto marketPostDto, string userId)
@@ -108,8 +112,6 @@ using System.Threading.Tasks;
                     
                 }
 
-                
-
                
                 var newPost = new MarketPost()
                 {
@@ -131,40 +133,44 @@ using System.Threading.Tasks;
 
                 if (hasPosted)
                 {
-                    return Ok(newPost);
+                    return CreatedAtAction(nameof(GetPost), newPost);
                 }
                 return BadRequest("something went wrong while trying to create this post");
             }
 
             // update the market post
+            [SwaggerOperation(Summary = "corper wants to update his/her post in the marketplace")]
             [HttpPut]
             [Route("marketpost/{postId}")]
             public async Task<IActionResult> UpdatePost(int postId, UpdateMarketPostDto updateMarketPostDto)
             {
-            try
-            {
-                var marketPost = await _marketpostRepository.GetById(postId);
-                marketPost.Price = updateMarketPostDto.Price;
-                marketPost.StatePost = updateMarketPostDto.State;
-
-                var isSuccessful = await _marketpostRepository.Update(marketPost);
-
-                if (isSuccessful)
+                try
                 {
-                    return Ok(marketPost);
-                }
-                else
-                {
-                    return BadRequest(new { Success = false, Error = "the details were not filled in properly" });
-                }
-            }
-            catch (Exception)
-            {
+                    var marketPost = await _marketpostRepository.GetById(postId);
+                    marketPost.Price = updateMarketPostDto.Price;
+                    marketPost.StatePost = updateMarketPostDto.State;
 
-                throw;
+                    var isSuccessful = await _marketpostRepository.Update(marketPost);
+
+                    if (isSuccessful)
+                    {
+                        return Ok(marketPost);
+                    }
+                    else
+                    {
+                        return BadRequest(new { Success = false, Error = "the details were not filled in properly" });
+                    }
+                }
+                catch (Exception)
+                {
+
+                    throw;
+                }
             }
-            }
+
+
             // corper wants to delete post
+            [SwaggerOperation(Summary = "corper wants to delete his/her post in the marketplace")]
             [HttpDelete]
             [Route("DeletePost/{id}")]
             public async Task<IActionResult> DeletePost(int id, string userId)

@@ -122,10 +122,11 @@ namespace nyschub
             // for email service
             services.Configure<MailjetOptions>(Configuration.GetSection("mailjetOptions"));
 
+            // for swagger ui
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "nyschub", Version = "v1" });
-
+                c.EnableAnnotations();
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     Description = @"JWT authorization header using the bearer scheme.
@@ -165,6 +166,13 @@ namespace nyschub
             app.UseDeveloperExceptionPage();
             app.UseSwagger();
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "nyschub v1"));
+
+            // the rd=edoc middleware
+            app.UseReDoc(c =>
+            {
+                c.DocumentTitle = "NyscHub Api Documentation";
+                c.SpecUrl = "/swagger/v1/swagger.json";
+            });
 
            
             app.UseHttpsRedirection();

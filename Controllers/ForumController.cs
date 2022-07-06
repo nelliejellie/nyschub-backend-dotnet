@@ -11,6 +11,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace nyschub.Controllers
 {
@@ -30,6 +31,7 @@ namespace nyschub.Controllers
             _imageService = imageService;
         }
 
+        [SwaggerOperation(Summary = "get all posts made by users in the forum")]
         // get all posts
         [HttpGet]
         [Route("AllPosts/{page}", Name = "AllPost")]
@@ -39,6 +41,7 @@ namespace nyschub.Controllers
             return Ok(posts);
         }
 
+        [SwaggerOperation(Summary = "get a particular post in the forum")]
         // gets a particular post 
         [HttpGet]
         [Route("Post/{id}", Name = "Post")]
@@ -60,6 +63,7 @@ namespace nyschub.Controllers
             
         }
 
+        [SwaggerOperation(Summary = "get all the post made by a particular corper")]
         // gets all the post made by a corper
         [HttpGet]
         [Route("MyPosts/{username}", Name = "MyPosts")]
@@ -82,7 +86,7 @@ namespace nyschub.Controllers
             
         }
 
-
+        [SwaggerOperation(Summary = "a registered corper creates a post")]
         // corper creates a post
         [HttpPost]
         [Route("AddPost", Name = "AddPost")]
@@ -118,6 +122,7 @@ namespace nyschub.Controllers
             return BadRequest("something went wrong while trying to create this post");
         }
 
+        [SwaggerOperation(Summary = "a registered user deletes a post")]
         // corper wants to delete post
         [HttpDelete]
         [Route("DeletePost/{id}", Name = "DeletePost")]

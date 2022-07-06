@@ -6,6 +6,7 @@ using nyschub.DataAccess;
 using nyschub.DTO;
 using nyschub.Entities;
 using nyschub.Repositories;
+using Swashbuckle.AspNetCore.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,8 +31,9 @@ namespace nyschub.Controllers
         }
 
         // get all corpers
-       // cd nyschub
+        // cd nyschub
 
+        [SwaggerOperation(Summary = "getting all corpers in a particular page")]
         [HttpGet]
         [Route("AllCorpers/{page}", Name = "Corpers")]
         public async Task<IActionResult> GetCorpers(int page)
@@ -51,9 +53,11 @@ namespace nyschub.Controllers
                 showUsers.Add(User);
             }
             return Ok(corpers);
+            
         }
 
-        // get particular post
+        // get particular corper
+        [SwaggerOperation(Summary = "getting a corper in a particular page")]
         [HttpGet]
         [Route("GetCorper/{id}", Name = "Corper")]
         public async Task<IActionResult> GetCorper(string id)
@@ -64,6 +68,7 @@ namespace nyschub.Controllers
         }
 
         // update corper details
+        [SwaggerOperation(Summary = "updating a corpers details")]
         [HttpPut]
         [Route("UpdateCorper/{id}", Name = "UpdateCorper")]
         public async Task<IActionResult> UpdateCorper(string id, UpdateCorperDto corperDto)

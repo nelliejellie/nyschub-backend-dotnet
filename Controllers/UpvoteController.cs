@@ -6,6 +6,7 @@ using nyschub.Contracts;
 using nyschub.DataAccess;
 using nyschub.DTO;
 using nyschub.Entities;
+using Swashbuckle.AspNetCore.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,6 +30,7 @@ namespace nyschub.Controllers
             _downVoteReopsitory = downVoteReopsitory;
         }
 
+        [SwaggerOperation(Summary = "upvote a users post")]
         [HttpPost]
         [Route("addvote")]
         public async Task<IActionResult> AddVote([FromQuery]UpVoteDto upVoteDto)
@@ -77,6 +79,7 @@ namespace nyschub.Controllers
             
         }
 
+        [SwaggerOperation(Summary = "unvote a previous vote")]
         [HttpDelete]
         [Route("removevote/{username}/{postid}/{voteid}")]
         public async Task<IActionResult> DeleteVote(int voteid, string username, int postid)
@@ -108,6 +111,7 @@ namespace nyschub.Controllers
             }
         }
 
+        [SwaggerOperation(Summary = "get all the upvotes under a particular comment")]
         [HttpGet]
         [Route("votes/{id}")]
         public async Task<IActionResult> AllVotes(int id)

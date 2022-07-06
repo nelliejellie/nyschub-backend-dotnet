@@ -6,6 +6,7 @@ using nyschub.Contracts;
 using nyschub.DataAccess;
 using nyschub.DTO;
 using nyschub.Entities;
+using Swashbuckle.AspNetCore.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,6 +27,7 @@ namespace nyschub.Controllers
             _commentRepositoy = commentRepositoy;
         }
 
+        [SwaggerOperation(Summary = "endpoint for getting comments under a particular post in the forum")]
         [HttpGet]
         [Route("getallcomments/{postid}")]
         public async Task<IActionResult> GetPostComments(int postid)
@@ -35,6 +37,7 @@ namespace nyschub.Controllers
             return Ok(comments);
         }
 
+        [SwaggerOperation(Summary = "endpoint for making a comment under a particular post in the forum")]
         [HttpPost]
         [Route("{username}/{postid}/addcomment")]
         public async Task<IActionResult> AddComment(string username, int postid, ForumCommentDto commentDto)
@@ -59,6 +62,7 @@ namespace nyschub.Controllers
             return Ok(newCommentDto);
         }
 
+        [SwaggerOperation(Summary = "endpoint for getting a particular comment under a particular post in the forum")]
         [HttpGet]
         [Route("{commentId}")]
         public async Task<IActionResult> GetCommentById(int commentId)
@@ -67,6 +71,7 @@ namespace nyschub.Controllers
             return Ok(comment);
         }
 
+        [SwaggerOperation(Summary = "endpoint for deleting a comment under a particular post in the forum")]
         [HttpDelete]
         [Route("deletecomment/{commentId}")]
         public async Task<IActionResult> DeleteCommentById(string username, int commentId)
