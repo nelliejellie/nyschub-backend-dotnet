@@ -99,11 +99,17 @@ namespace nyschub.Controllers
             var filePath = Path.GetTempFileName();
             using (var stream = System.IO.File.Create(filePath))
             {
-                await forumPostDto.PhotoPath.CopyToAsync(stream);
+                if(forumPostDto.PhotoPath != null)
+                {
+                    await forumPostDto.PhotoPath.CopyToAsync(stream);
+                }
+                
             }
-            var uploadResult = await _imageService.AddImage(filePath);
-            imgUrl = uploadResult;
-
+            if (forumPostDto.PhotoPath != null)
+            {
+                var uploadResult = await _imageService.AddImage(filePath);
+                imgUrl = uploadResult;
+            }
 
             var newPost = new ForumPost()
             {
